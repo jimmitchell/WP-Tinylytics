@@ -2,7 +2,7 @@
 /*
 Plugin Name: WP Tinylytics
 Description: Custom plugin for embedding Tinylytics script.
-Version: 1.0.1
+Version: 1.0.2
 Author: Jim Mitchell
 */
 
@@ -130,6 +130,10 @@ function process_tinylytics_form() {
 
 // *** Define the plugin settings page content
 function tinylytics_settings_page() {
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+        return;
+    }
     ?>
     <div class="wrap">
         <h1>Tinylytics Settings</h1>
@@ -197,7 +201,7 @@ function tinylytics_output_script() {
     if (!empty($site_id)) {
         $script_url = "https://tinylytics.app/embed/{$site_id}.js?";
         $script_url .= $hits ? 'hits&' : '';
-        $script_url .= $stats ? 'stats&' : '';
+        $script_url .= $stats ? 'publicstats&' : '';
         $script_url .= $uptime ? 'uptime&' : '';
         $script_url .= $kudos && !$kudos_label ? 'kudos&' : '';
         $script_url .= $kudos && $kudos_label ? 'kudos=' . $kudos_label . '&' : '';
@@ -231,50 +235,12 @@ function tinylytics_user_scripts() {
 
 
 // *** Wordpress shortcodes to use in posts and pages
-function tinylytics_kudos_function() {
-	$kudos = get_option('tinylytics_kudos', 0);
-	if ($kudos === '1') {
-		return '<button class="tinylytics_kudos" data-path="'. wp_make_link_relative(get_permalink()) .'"></button>';
-	}
-}
-add_shortcode('tinykudos','tinylytics_kudos_function');
-
-function tinylytics_hits_function() {
-	$hits = get_option('tinylytics_hits', 0);
-	if ($hits === '1') {
-		return '<span class="tinylytics_hits" data-path="'. wp_make_link_relative(get_permalink()) .'"></span>';
-	}
-}
-add_shortcode('tinyhits','tinylytics_hits_function');
-
-function tinylytics_flags_function() {
-	$flags = get_option('tinylytics_flags', 0);
-	if ($flags === '1') {
-		return '<p><span class="tinylytics_countries"></span></p>';
-	}
-}
-add_shortcode('tinyflags','tinylytics_flags_function');
-
-function tinylytics_webring_function() {
-	$webring = get_option('tinylytics_webring', 0);
-	$webring_label = get_option('tinylytics_webring_label');
-	$avatars = get_option('tinylytics_avatars', 0);
-	if ($webring === '1') {
-		$show_avatar = $avatars ? '<img class="tinylytics_webring_avatar" src="" style="display: none"/>' : '';
-		if ($webring_label === '') {
-			$output = '<span class="tiny_webring"><a href="" class="tinylytics_webring" target="_blank" title="Tinylytics Web Ring">🕸️' . $show_avatar . '💍</a></span>';
-		} else {
-			$output = '<span class="tiny_webring"><a href="" class="tinylytics_webring" target="_blank" title="Tinylytics Web Ring">'. $show_avatar . $webring_label . '</a></span>';
-		}
-	}
-	return $output;
-}
-add_shortcode('tinywebring','tinylytics_webring_function');
+include plugin_dir_path( __FILE__ ) . '/inc/shortcodes.php';
 
 
- // *** Display alerts after submitting custom admin wp form
- function tinylytics_admin_message($message, $msg_type) {
-    return "<div id='message' class='notice notice-$msg_type is-dismissible'><p>$message</p></div>";
+// *** Display alerts after submitting custom admin wp form
+function tinylytics_admin_message($message, $msg_type) {
+	return "<div id='message' class='notice notice-$msg_type is-dismissible'><p>$message</p></div>";
 }
 
 // *** Console logging

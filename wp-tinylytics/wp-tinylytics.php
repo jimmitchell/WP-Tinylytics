@@ -209,7 +209,7 @@ function tinylytics_output_script() {
         $script_url .= $webring && $avatars ? 'webring=' : '';
         $script_url .= $avatars ? 'avatars&' : '';
         $script_url .= $flags ? 'countries&' : '';
-        $script_url = rtrim(rtrim($script_url, '&'), '?');
+        $script_url = rtrim($script_url, '&?');
         
         echo '<script defer="defer" src="' . esc_url($script_url) . '"></script>' . PHP_EOL;
     }
